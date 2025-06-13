@@ -1,0 +1,4 @@
+server.port=8080
+server.host=192.168.8.74
+server.backlog=500
+server.path.logger=/tmp/server.log
