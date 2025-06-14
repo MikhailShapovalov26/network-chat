@@ -121,3 +121,4 @@ java -cp "logger/target/logger-1.0-SNAPSHOT.jar:server/target/server-1.0-SNAPSHO
 ```bash
 java -cp "logger/target/logger-1.0-SNAPSHOT.jar:client/target/client-1.0-SNAPSHOT.jar:app-configuration/target/app-configuration-1.0-SNAPSHOT.jar" ru.netology.ClientNetworkChat
 ```
+

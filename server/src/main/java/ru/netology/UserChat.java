@@ -5,10 +5,12 @@ import java.net.Socket;
 
 import ru.netology.logger.Logger;
 
+import static ru.netology.ServerNetworkChat.getCountUsers;
+
 public class UserChat extends Thread {
 
     private String name;
-    private Socket socket;
+    private static Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
     private Logger logger;
@@ -26,25 +28,30 @@ public class UserChat extends Thread {
 
         try {
             this.name = new RegistryUsers(
-                    out, in, logger
+                    out, in, logger, socket
             ).register();
-
-            ServerNetworkChat.broadcastMessage(this.name,
-                    "[INFO] К нам присоединился " + this.name + "\n" + " Поприветствуем его!");
-            logger.info("К нам присоединился"  + this.name + "\n");
+            if(getCountUsers()>1) {
+                ServerNetworkChat.broadcastMessage(this.name,
+                        "[INFO] К нам присоединился " + this.name + "\n" + " Поприветствуем его!");
+                logger.info("К нам присоединился " + this.name + "\n");
+            }
 
             String message;
-            while (!(message = this.in.readLine()).equals("exit")) {
-                if(message ==null){
-                    this.out.write("[ERROR] пустые сообщения не допускаются");
-                    this.out.flush();
-                    continue;
-                }
-                ServerNetworkChat.broadcastMessage(this.name, this.name + ": " + message);
-                logger.info("Пользователь " + this.name
-                        + " отправил новое сообщение в чат: " +
-                        message);
+            try {
+                while (!(message = this.in.readLine()).equals("exit")) {
+                    if (message == null) {
+                        this.out.write("[ERROR] пустые сообщения не допускаются");
+                        this.out.flush();
+                        continue;
+                    }
+                    ServerNetworkChat.broadcastMessage(this.name, this.name + ": " + message);
+                    logger.info("Пользователь " + this.name
+                            + " отправил новое сообщение в чат: " +
+                            message);
 
+                }
+            }catch (NullPointerException e){
+                logger.error("Пустое сообщение не допускается " + e.getMessage());
             }
         } catch (IOException e) {
             logger.error("Ошибка: " + e.getMessage());
@@ -65,5 +72,8 @@ public class UserChat extends Thread {
 
     public String getUserName(){
         return this.name;
+    }
+    public static void closeUserSocket() throws IOException {
+        socket.close();
     }
 }
