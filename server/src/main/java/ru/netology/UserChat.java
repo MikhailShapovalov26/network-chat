@@ -2,6 +2,7 @@ package ru.netology;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
 
 import ru.netology.logger.Logger;
 
@@ -30,6 +31,11 @@ public class UserChat extends Thread {
             this.name = new RegistryUsers(
                     out, in, logger, socket
             ).register();
+            User newUser = new User(this.name,this.socket.getInetAddress().toString());
+            System.out.println("ТУТ " + newUser.getName() + newUser.getIpAddress());
+
+            UserDaoImplementation userDao = new UserDaoImplementation();
+            userDao.add(newUser);
             if(getCountUsers()>1) {
                 ServerNetworkChat.broadcastMessage(this.name,
                         "[INFO] К нам присоединился " + this.name + "\n" + " Поприветствуем его!");
@@ -55,8 +61,9 @@ public class UserChat extends Thread {
             }
         } catch (IOException e) {
             logger.error("Ошибка: " + e.getMessage());
-        }
-        finally {
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
             ServerNetworkChat.removeUser(this);
         }
     }

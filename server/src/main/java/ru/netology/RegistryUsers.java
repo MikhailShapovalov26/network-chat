@@ -26,7 +26,6 @@ public class RegistryUsers {
     public String register() throws IOException {
         try {
             sendAuthRequest("[AUTH] Введите ваше имя: \n");
-
             String name = in.readLine();
             if (name == null) {
                 throw new IOException("Клиент отключился");
@@ -51,7 +50,6 @@ public class RegistryUsers {
             throw e;
         }
     }
-
 
     public void sendAuthRequest(String message) throws IOException {
         this.out.write(message);

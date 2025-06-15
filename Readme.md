@@ -122,3 +122,15 @@ java -cp "logger/target/logger-1.0-SNAPSHOT.jar:server/target/server-1.0-SNAPSHO
 java -cp "logger/target/logger-1.0-SNAPSHOT.jar:client/target/client-1.0-SNAPSHOT.jar:app-configuration/target/app-configuration-1.0-SNAPSHOT.jar" ru.netology.ClientNetworkChat
 ```
 
+
+### MYSQL
+
+Создание таблицы для пользователей
+
+```sql
+  create table socket.user (
+   UserId int, name varchar(255), 
+   IPAddress varchar(255)
+   );
+```
+

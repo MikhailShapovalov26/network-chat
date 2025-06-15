@@ -8,6 +8,9 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 
 public class ServerNetworkChat {
@@ -17,7 +20,9 @@ public class ServerNetworkChat {
     private static final int DEFAULT_PORT = 5555;
     private static final String DEFAULT_HOST= "localhost";
 
-    public static void StartServerChat(int port, String inetAddress, Logger logger) throws IOException {
+
+
+    public static void startServerChat(int port, String inetAddress, Logger logger) throws IOException {
         try {
             serverSocket = new ServerSocket(port, 500, InetAddress.getByName(inetAddress));
             logger.info("Сервер будет запущен на порту: " + port + " и на хосту "+ InetAddress.getByName(inetAddress));
@@ -41,7 +46,7 @@ public class ServerNetworkChat {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
 
         ConfigureApp configureApp = new ConfigureApp("settings.file");
         int port = configureApp.readConfigure("server.port") !=null?
@@ -56,9 +61,12 @@ public class ServerNetworkChat {
                 : "/dev/null";
         logger = new Logger(pathLogger);
         logger.info("Конфиг файл найден");
-
-        StartServerChat(port, host, logger);
-
+        // Create table for User and save Message  chat
+        CreateTables createTables = new CreateTables();
+        Connection connection = DatabaseConnection.getConnection();
+        createTables.setCreateTableUser(connection);
+        createTables.setCreateTableChat(connection);
+        startServerChat(port, host, logger);
     }
 
     public static void broadcastMessage(String sender, String text) {
@@ -69,7 +77,7 @@ public class ServerNetworkChat {
         synchronized (users) {
             users.forEach(user -> {
                 try {
-                    if (user != null && !user.getUserName().equals(sender)) {
+                    if (!user.getUserName().equals(sender)) {
                         user.send(text);
                     }
                 }catch (NullPointerException npe){

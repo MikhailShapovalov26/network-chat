@@ -27,7 +27,7 @@ public class ServerNetworkChatTest {
         try {
              serverThread= new Thread(() -> {
                 try {
-                    ServerNetworkChat.StartServerChat(TEST_PORT, TEST_HOST, logger);
+                    ServerNetworkChat.startServerChat(TEST_PORT, TEST_HOST, logger);
                 } catch (IOException e) {
                     try {
                         ServerNetworkChat.serverNetworkChatStop();
