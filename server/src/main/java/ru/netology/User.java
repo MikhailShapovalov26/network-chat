@@ -1,9 +1,10 @@
 package ru.netology;
 
-import java.net.InetAddress;
+import lombok.Data;
 
+@Data
 public class User {
-    private int UserId;
+    private int userId;
     private String name;
     private String ipAddress;
 
@@ -17,7 +18,7 @@ public class User {
 
 
     public int getUserId() {
-        return UserId;
+        return userId;
     }
 
     public String getName() {
@@ -28,18 +29,11 @@ public class User {
         return ipAddress;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
 
     @Override
     public String toString() {
         return "User:" + name +
-                "id пользователя=" + UserId +
+                "id пользователя=" + userId +
                 ", Имя ='" + name + '\'' +
                 ", IP адрес подключения ='" + ipAddress + '\'' +
                 '}';

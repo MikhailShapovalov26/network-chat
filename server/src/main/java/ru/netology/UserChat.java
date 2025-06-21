@@ -3,10 +3,13 @@ package ru.netology;
 import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+
 
 import ru.netology.logger.Logger;
 
 import static ru.netology.ServerNetworkChat.getCountUsers;
+import static ru.netology.ServerNetworkChat.users;
 
 public class UserChat extends Thread {
 
@@ -15,6 +18,8 @@ public class UserChat extends Thread {
     private BufferedReader in;
     private BufferedWriter out;
     private Logger logger;
+    private static UserDaoImplementation userDao = null;
+    private static User newUser = null;
 
     public UserChat(Socket socket, Logger logger) throws IOException {
         this.socket = socket;
@@ -23,6 +28,7 @@ public class UserChat extends Thread {
         this.logger = logger;
         this.start();
     }
+
     @Override
     public void run() {
         logger.info("Новый поток для пользователя с IP: " + this.socket.getInetAddress());
@@ -31,12 +37,17 @@ public class UserChat extends Thread {
             this.name = new RegistryUsers(
                     out, in, logger, socket
             ).register();
-            User newUser = new User(this.name,this.socket.getInetAddress().toString());
-            System.out.println("ТУТ " + newUser.getName() + newUser.getIpAddress());
+            newUser = new User(this.name, this.socket.getInetAddress().toString());
 
-            UserDaoImplementation userDao = new UserDaoImplementation();
-            userDao.add(newUser);
-            if(getCountUsers()>1) {
+            userDao = new UserDaoImplementation();
+            try {
+                newUser.setUserId(userDao.add(newUser));
+            } catch (SQLIntegrityConstraintViolationException e) {
+                logger.error("Дубликат логина");
+                send("Дубликат логина");
+                socket.close();
+            }
+            if (getCountUsers() > 1) {
                 ServerNetworkChat.broadcastMessage(this.name,
                         "[INFO] К нам присоединился " + this.name + "\n" + " Поприветствуем его!");
                 logger.info("К нам присоединился " + this.name + "\n");
@@ -51,18 +62,23 @@ public class UserChat extends Thread {
                         continue;
                     }
                     ServerNetworkChat.broadcastMessage(this.name, this.name + ": " + message);
+                    MessageAddDatabase msd = new MessageAddDatabase();
+                    msd.setUserId(userDao.getUserId(this.name));
+                    msd.setMessage(message);
+                    msd.addNewMessageDB();
+
                     logger.info("Пользователь " + this.name
                             + " отправил новое сообщение в чат: " +
                             message);
 
                 }
-            }catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 logger.error("Пустое сообщение не допускается " + e.getMessage());
             }
         } catch (IOException e) {
             logger.error("Ошибка: " + e.getMessage());
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error("Ошибка: " + e.getMessage());
         } finally {
             ServerNetworkChat.removeUser(this);
         }
@@ -77,9 +93,10 @@ public class UserChat extends Thread {
         }
     }
 
-    public String getUserName(){
+    public String getUserName() {
         return this.name;
     }
+
     public static void closeUserSocket() throws IOException {
         socket.close();
     }

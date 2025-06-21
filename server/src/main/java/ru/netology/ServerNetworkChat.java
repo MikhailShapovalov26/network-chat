@@ -66,6 +66,7 @@ public class ServerNetworkChat {
         Connection connection = DatabaseConnection.getConnection();
         createTables.setCreateTableUser(connection);
         createTables.setCreateTableChat(connection);
+        new ServerJFrame().startJFrameServer();
         startServerChat(port, host, logger);
     }
 

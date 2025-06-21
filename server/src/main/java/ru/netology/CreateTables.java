@@ -5,19 +5,20 @@ import java.sql.*;
 public class CreateTables {
 
     static final String CREATE_TABLE_USER = "CREATE TABLE  IF NOT EXISTS users (\n" +
-                                    "UserId INT NOT NULL AUTO_INCREMENT, \n" +
-                                     "name varchar(255) NOT NULL, \n" +
-                                    " IPAddress varchar(255),\n" +
-                                    " PRIMARY KEY (UserId)\n" +
-                                    " )ENGINE=INNODB;";
+                                    "userId INT NOT NULL AUTO_INCREMENT, \n" +
+                                    "name varchar(255) NOT NULL, \n" +
+                                    "networkAddress varchar(255),\n" +
+                                    "PRIMARY KEY (UserId),\n" +
+                                    "UNIQUE (name)\n" +
+                                    ")ENGINE=INNODB;";
 
     static final String CREATE_TABLE_CHAT="CREATE TABLE IF NOT EXISTS chats (\n" +
-                                            "MessageId  INT NOT NULL AUTO_INCREMENT,\n"+
-                                            "Message text NOT NULL, \n"+
-                                            "UserID INT NOT NULL,\n" +
-                                            "PRIMARY KEY (MessageId),\n"+
-                                            "FOREIGN KEY (UserId) REFERENCES users(UserId) ON DELETE CASCADE"+
-                                            " )ENGINE=INNODB;";
+                                            "messageId  INT NOT NULL AUTO_INCREMENT,\n"+
+                                            "message text NOT NULL, \n"+
+                                            "userID INT NOT NULL,\n" +
+                                            "PRIMARY KEY (messageId),\n"+
+                                            "FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE"+
+                                            ")ENGINE=INNODB;";
 
     public void createTable(String query, Connection connection) throws ClassNotFoundException, SQLException {
         try(Statement stmt = connection.createStatement();){
